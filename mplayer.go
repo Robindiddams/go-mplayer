@@ -14,7 +14,6 @@ import (
 	"io"
 	"os/exec"
 	"strings"
-	"time"
 )
 
 var (
@@ -98,8 +97,7 @@ func keepSlaveAlive() {
 		}
 
 		if err != nil {
-			// TODO: handle error
-			time.Sleep(10 * time.Second)
+			panic(err)
 		}
 	}
 }
