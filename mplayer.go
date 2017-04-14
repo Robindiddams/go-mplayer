@@ -17,6 +17,8 @@ import (
 	"time"
 )
 
+type ErrorHandler func(err error)
+
 var (
 	// Input is used to feed the slave subprocess commands.
 	Input = make(chan string)
