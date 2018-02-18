@@ -14,6 +14,7 @@ import (
 	"io"
 	"os/exec"
 	"strings"
+	"time"
 )
 
 var (
@@ -26,6 +27,9 @@ var (
 	// hasStopSignalListeners signals that there are listened for the Stop
 	// signal emitted
 	hasStopSignalListeners = false
+
+	//Paused stops pings for end of song
+	Paused = false
 )
 
 // readOutput is a go routine transferring the stdout of MPlayer to a proper
@@ -123,13 +127,25 @@ func RegisterStopHandler(f func()) {
 	// use the stoppedCh
 	hasStopSignalListeners = true
 
+	ticker := time.Tick(time.Second)
+
 	go func() {
-		if <-stoppedCh {
-			// the player stopped lets run our func
-			f()
-		} else {
-			// if its false maybe we could "de-register" this func?
-			// return?
+		for {
+			if <-stoppedCh {
+				// the player stopped lets run our func
+				f()
+			} else {
+				// if its false maybe we could "de-register" this func?
+				// return?
+			}
+		}
+	}()
+	go func() {
+		for {
+			<-ticker
+			if !Paused {
+				SendCommand("get_property path")
+			}
 		}
 	}()
 }
