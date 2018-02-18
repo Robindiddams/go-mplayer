@@ -16,8 +16,6 @@ import (
 	"strings"
 )
 
-type ErrorHandler func(err error)
-
 var (
 	// Input is used to feed the slave subprocess commands.
 	Input = make(chan string)
@@ -45,7 +43,7 @@ func readOutput(reader io.Reader) {
 
 		// When PlayAndWait is used, we send a "get_property path" to
 		// MPlayer every seconds.  If the response is ever that nothing
-		// is player anymore, we shutdown the player.
+		// is playing anymore, we shutdown the player.
 		if hasStopSignalListeners && msg == "ANS_path=(null)" {
 			stoppedCh <- true
 		}
@@ -117,4 +115,20 @@ func StartSlave() {
 // SendCommand feeds the MPlayer slave with input commands.
 func SendCommand(msg string) {
 	Input <- msg
+}
+
+// RegisterStopHandler lets you register a func to do something when the player
+// stops playing, this is useful if you want to asynchronously play and pause
+func RegisterStopHandler(f func()) {
+	// use the stoppedCh
+	hasStopSignalListeners = true
+
+	go func() {
+		if <-stoppedCh {
+			// the player stopped lets run our func
+			f()
+		} else {
+
+		}
+	}()
 }
