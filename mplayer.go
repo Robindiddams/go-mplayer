@@ -128,7 +128,8 @@ func RegisterStopHandler(f func()) {
 			// the player stopped lets run our func
 			f()
 		} else {
-
+			// if its false maybe we could "de-register" this func?
+			// return?
 		}
 	}()
 }
